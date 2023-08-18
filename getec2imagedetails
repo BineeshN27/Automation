@@ -1,0 +1,2 @@
+aws ec2 describe-instances --region us-east-1 --query 'Reservations[].Instances[].{Account: OwnerId, Region: Placement.AvailabilityZone, InstanceId: InstanceId, ImageId: ImageId, Image: Image}' --output table
+aws ec2 describe-instances --region us-east-1 --query 'Reservations[].Instances[].{Account: OwnerId, Region: Placement.AvailabilityZone, InstanceId: InstanceId, ImageId: ImageId, CreationDate: Image.CreationDate, ImageLocation: Image.ImageLocation, PlatformDetails: Image.PlatformDetails}' --output table
