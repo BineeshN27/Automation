@@ -1,3 +1,15 @@
 aws ec2 describe-instances --region us-east-1 --query 'Reservations[].Instances[].{Account: OwnerId, Region: Placement.AvailabilityZone, InstanceId: InstanceId, ImageId: ImageId, Image: Image}' --output table
 aws ec2 describe-instances --region us-east-1 --query 'Reservations[].Instances[].{Account: OwnerId, Region: Placement.AvailabilityZone, InstanceId: InstanceId, ImageId: ImageId, CreationDate: Image.CreationDate, ImageLocation: Image.ImageLocation, PlatformDetails: Image.PlatformDetails}' --output table
 aws ec2 describe-instances --region us-east-1 --query 'Reservations[].Instances[].{Account: OwnerId, Region: "us-east-1", InstanceId: InstanceId, ImageId: ImageId, Image: Image}' --output table
+
+
+#!/bin/bash
+
+# Get the AWS account ID
+account_id=$(aws sts get-caller-identity --query 'Account' --output text)
+
+# List EC2 instances and format the output
+instances_output=$(aws ec2 describe-instances --region us-east-1 --query "Reservations[].Instances[].{AccountId: '$account_id', Region: 'us-east-1', InstanceId: InstanceId, ImageId: ImageId, Image: Image}" --output json)
+
+# Print the combined output
+echo "$instances_output" | jq -r '.[] | "\(.AccountId)\t\(.Region)\t\(.InstanceId)\t\(.ImageId)\t\(.Image)"' | column -t -s $'\t'
