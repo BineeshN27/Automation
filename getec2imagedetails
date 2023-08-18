@@ -13,3 +13,28 @@ instances_output=$(aws ec2 describe-instances --region us-east-1 --query "Reserv
 
 # Print the combined output
 echo "$instances_output" | jq -r '.[] | "\(.AccountId)\t\(.Region)\t\(.InstanceId)\t\(.ImageId)\t\(.Image)"' | column -t -s $'\t'
+
+
+
+# Loop through unique image IDs and output to file
+for image_id in $unique_image_ids; do
+    image_details=$(aws ec2 describe-images --region us-east-1 --image-ids "$image_id" --query 'Images[0]')
+    creation_date=$(echo "$image_details" | jq -r '.CreationDate')
+    image_location=$(echo "$image_details" | jq -r '.ImageLocation')
+    platform_details=$(echo "$image_details" | jq -r '.PlatformDetails')
+    description=$(echo "$image_details" | jq -r '.Description')
+    name=$(echo "$image_details" | jq -r '.Name')
+    deprecation_time=$(echo "$image_details" | jq -r '.Deprecated')
+    
+    # Print image details to file
+    echo "Image ID: ${additional_text}${account_id}_${image_id}" >> "$output_file"
+    echo "Creation Date: $creation_date" >> "$output_file"
+    echo "Image Location: $image_location" >> "$output_file"
+    echo "Platform Details: $platform_details" >> "$output_file"
+    echo "Description: $description" >> "$output_file"
+    echo "Name: $name" >> "$output_file"
+    echo "Deprecation Time: $deprecation_time" >> "$output_file"
+    echo >> "$output_file"
+done
+
+echo "Image details have been saved to $output_file."
